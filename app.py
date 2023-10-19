@@ -54,7 +54,7 @@ def verify_otp():
     otp = request.form.get('otp')
 
     cursor.execute("""SELECT * FROM `nsp_register` WHERE `email` LIKE '{}' AND `otp` LIKE '{}'""".format(email,otp))
-    users = cursor.fetchall()
+    users = cursor.fetchone()
 
     if len(users) > 0:
         cursor.execute("""UPDATE `nsp_register` SET `verified` = 1 WHERE `email` LIKE '{}'""".format(email))
@@ -71,14 +71,14 @@ def login_validation():
     users=cursor.fetchall()
     if len(users)>0:
         session['user_id']=users[0][0]
-        return render_template('chat.html')
+        return render_template('services.html')
     else:
         return redirect('/sign')
 
 @app.route('/logout')
 def logout():
     session.pop('user_id')
-    return redirect('/index')
+    return redirect('/')
 
 @app.route('/services')
 def services():
@@ -101,9 +101,22 @@ def chat():
     else:
         return render_template('services.html')
     
+@app.route('/scratch')
+def scratch():
+    username = request.args.get('username')
+    room = request.args.get('room')
+    if username and room:
+        return render_template('scratch.html',username=username,room=room)
+    else:
+        return render_template('services.html')
+    
 @app.route('/chat-o-vert')
 def chatovert():
     return render_template('chat-o-vert.html')
+
+@app.route('/scratchvert')
+def scratchovert():
+    return render_template('scratchvert.html')
     
 @socketio.on('send_message')
 def handle_send_message_event(data):
